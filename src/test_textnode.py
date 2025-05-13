@@ -29,9 +29,9 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(sut, node_cmp)
 
     def test_non_url_node_correct_string_rep(self):
-        sut = TextNode("Hello World!", TextType.NORMAL)
+        sut = TextNode("Hello World!", TextType.TEXT)
         text_rep = str(sut)
-        expected = "TextNode(Hello World!, normal, None)"
+        expected = "TextNode(Hello World!, text, None)"
         self.assertEqual(text_rep, expected)
 
     def test_url_node_correct_string_rep(self):
