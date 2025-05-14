@@ -1,7 +1,7 @@
 import unittest
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from utility import text_node_to_html_node, split_nodes_delimiter
+from utility import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 
 class TestUtility(unittest.TestCase):
     def test_text(self):
@@ -40,13 +40,80 @@ class TestUtility(unittest.TestCase):
         sut = text_node_to_html_node(node)
         expected_html = '<img "src=https://example.com/image01" alt="This is an image node"></img>'
     
-    def test_split_node_single_nested_italic(self):
-        nodes = [TextNode("This is a text with a `code block` word")]
-        sut = split_nodes_delimiter(nodes, "`", TextType.Code)
-        self.assertEqual(sut, [TextNode("This is a text with a ", TextNode.TEXT),
+    def test_split_node_single_nested_code(self):
+        nodes = [TextNode("This is a text with a `code block` word", TextType.TEXT)]
+        sut = split_nodes_delimiter(nodes, "`", TextType.CODE)
+        self.assertEqual(sut, [TextNode("This is a text with a ", TextType.TEXT),
                                TextNode("code block", TextType.CODE),
                                TextNode(" word", TextType.TEXT)])
     
+    def test_split_node_multiple_nested_code(self):
+        nodes = [TextNode("This is a text with a `code block` word and another `code block`", TextType.TEXT)]
+        sut = split_nodes_delimiter(nodes, "`", TextType.CODE)
+        self.assertEqual(sut, [TextNode("This is a text with a ", TextType.TEXT),
+                               TextNode("code block", TextType.CODE),
+                               TextNode(" word and another ", TextType.TEXT),
+                               TextNode("code block", TextType.CODE)])
+    
+    def test_split_node_multiple_TextNodes_with_nested_code(self):
+        nodes = [TextNode("This is a text with a `code block` word and another `code block` Okay", TextType.TEXT),
+                TextNode("Hello World!", TextType.TEXT),
+                TextNode("`String temp = String.Empty`", TextType.TEXT)]
+        sut = split_nodes_delimiter(nodes, "`", TextType.CODE)
+        self.assertEqual(sut, [TextNode("This is a text with a ", TextType.TEXT),
+                               TextNode("code block", TextType.CODE),
+                               TextNode(" word and another ", TextType.TEXT),
+                               TextNode("code block", TextType.CODE),
+                               TextNode(" Okay", TextType.TEXT),
+                               TextNode("Hello World!", TextType.TEXT),
+                               TextNode("String temp = String.Empty", TextType.CODE)])
+    
+    def test_split_node_multiple_nested_bold(self):
+        nodes = [TextNode("This contains multiple **bold** text **nodes**!", TextType.TEXT)]
+        sut = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+        self.assertEqual(sut, [TextNode("This contains multiple ", TextType.TEXT),
+                               TextNode("bold", TextType.BOLD),
+                               TextNode(" text ", TextType.TEXT),
+                               TextNode("nodes", TextType.BOLD),
+                               TextNode("!", TextType.TEXT)])
+    
+    def test_split_node_multiple_nested_italic(self):
+        nodes = [TextNode("This contains multiple _italic_ text _nodes_!", TextType.TEXT)]
+        sut = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+        self.assertEqual(sut, [TextNode("This contains multiple ", TextType.TEXT),
+                               TextNode("italic", TextType.ITALIC),
+                               TextNode(" text ", TextType.TEXT),
+                               TextNode("nodes", TextType.ITALIC),
+                               TextNode("!", TextType.TEXT)])
+    
+    def test_split_node_nested_inline_elements(self):
+        nodes = [TextNode("This is an _italic and **bold** word_.", TextType.TEXT)]
+        sut = split_nodes_delimiter(split_nodes_delimiter(nodes, "_", TextType.ITALIC), "**", TextType.BOLD)
+        self.assertEqual(sut, [TextNode("This is an ", TextType.TEXT),
+                               TextNode("italic and ", TextType.ITALIC),
+                               TextNode("bold", TextType.BOLD),
+                               TextNode(" word", TextType.ITALIC),
+                               TextNode(".", TextType.TEXT)])
+    
+    def test_extract_markdown_images(self):
+        sut = extract_markdown_images(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
+        )
+        self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], sut)
+    
+    def test_extract_markdown_multiple_images(self):
+        sut = extract_markdown_images(
+            "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        )
+        self.assertListEqual([("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+                              ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg" )], sut)
+    
+    def test_extract_markdown_multiple_links(self):
+        sut = extract_markdown_links(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        )
+        self.assertListEqual([("to boot dev", "https://www.boot.dev"),
+                              ("to youtube", "https://www.youtube.com/@bootdotdev")], sut)
 
 if __name__ == "__main__":
     unittest.main()

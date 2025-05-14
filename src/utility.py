@@ -1,6 +1,6 @@
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import TextNode, TextType
-
+import re
 def text_node_to_html_node(text_node):
     htmlNode = None
     match text_node.text_type:
@@ -26,11 +26,17 @@ def split_nodes_delimiter(old_nodes, delimiter, textType):
         if (len(new_nodes_text) == 1):
             new_nodes.append(node)
             continue
-        for index in range(0, new_nodes_text):
-            if new_nodes_text == "":
+        for index in range(0, len(new_nodes_text)):
+            if new_nodes_text[index] == "":
                 continue
-            new_nodes.append(TextNode(new_nodes_text[index], textType if index % 2 == 1 else TextType.TEXT))
+            new_nodes.append(TextNode(new_nodes_text[index], textType if index % 2 == 1 else node.text_type))
     return new_nodes
+
+def extract_markdown_images(text):
+    return re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+
+def extract_markdown_links(text):
+    return re.findall(r"[^!]\[(.*?)\]\((.*?)\)", text)
 
 if __name__ == "__main__":
     split_nodes_delimiter([TextNode("This is a text with a `code block` word", TextType.ITALIC)], "`", TextType.CODE)
