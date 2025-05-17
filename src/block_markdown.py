@@ -17,10 +17,17 @@ def block_to_block_type(block):
     match (block):
         case block if re.match("#{1,6} ", block) != None:
             return BlockType.HEADING
-        case block if re.match("`{3}(?s:.)`{3}") != None:
+        case block if re.match("`{3}(?s:.)*`{3}", block) != None: #(?s:.), re.DOTALL
             return BlockType.CODE
-        case block if re.match("")
-            
+        case block if all_lines_match(block, "^>.*"):
+            return BlockType.QUOTE
+        case _:
+            return BlockType.PARAGRAPH
+
+def all_lines_match(block, pattern):
+    lineResults = [re.match(pattern, line) for line in block.splitlines()]
+    return all(lineResults)
+    
 
 if __name__ == "__main__":
     text = """
