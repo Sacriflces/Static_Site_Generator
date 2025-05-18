@@ -1,5 +1,6 @@
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import TextNode, TextType
+from block_markdown import BlockType, markdown_to_blocks, block_to_block_type
 import re
 def text_node_to_html_node(text_node):
     htmlNode = None
@@ -75,6 +76,35 @@ def split_nodes_link(old_nodes):
 def text_to_textnodes(text):
     startNode = TextNode(text, TextType.TEXT)
     return split_nodes_image(split_nodes_link((split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter( [startNode], "**", TextType.BOLD), "_", TextType.ITALIC),"`", TextType.CODE))))
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    child_Nodes = []
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        child = None
+        match block_type: #Where we create the HTML Node
+            case BlockType.HEADING:
+                pass
+            case BlockType.CODE:
+                pass
+            case BlockType.QUOTE:
+                pass
+            case BlockType.UNORDERED_LIST:
+                pass
+            case BlockType.ORDERED_LIST:
+                pass
+            case BlockType.PARAGRAPH:
+                child = create_HTML_p_node(block)
+        child_Nodes.append(child)
+    return ParentNode("div", child_Nodes)
+
+def create_HTML_p_node(text):
+    formatted_text = text.replace("\n", " ")
+    children = [text_node_to_html_node(text_node) for text_node in text_to_textnodes(formatted_text)]
+    return ParentNode("p", children)
+
+    
 
 if __name__ == "__main__":
     split_nodes_delimiter([TextNode("This is a text with a `code block` word", TextType.ITALIC)], "`", TextType.CODE)

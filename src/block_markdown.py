@@ -21,12 +21,23 @@ def block_to_block_type(block):
             return BlockType.CODE
         case block if all_lines_match(block, "^>.*"):
             return BlockType.QUOTE
+        case block if all_lines_match(block, "^-.*"):
+            return BlockType.UNORDERED_LIST
+        case block if is_ordered_list(block):
+            return BlockType.ORDERED_LIST
         case _:
             return BlockType.PARAGRAPH
 
 def all_lines_match(block, pattern):
     lineResults = [re.match(pattern, line) for line in block.splitlines()]
     return all(lineResults)
+
+def is_ordered_list(block):
+    lines = block.splitlines()
+    for i in range(0, len(lines)):
+        if re.match(rf"^{i + 1}\. .*", lines[i]) is None:
+            return False
+    return True
     
 
 if __name__ == "__main__":

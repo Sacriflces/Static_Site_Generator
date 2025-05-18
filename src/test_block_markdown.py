@@ -110,10 +110,87 @@ double value = 20.0;
         self.assertEqual(rtnType, BlockType.PARAGRAPH)
     
     def test_quote_block_returns_quote_blocktype(self):
-        text = """> Shopping List
-> Apples
-> Oranges
-> Tomatoes
+        text = """> This is a random quote.
+> From yours truly,
+> Inqindi!
+> by JService
 """
         rtnType = block_to_block_type(text)
         self.assertEqual(rtnType, BlockType.QUOTE)
+    
+    def test_quote_block_missing_start_character_returns_paragraph_blocktype(self):
+        text = """> This is a random quote.
+> From yours truly,
+Inqindi!
+> by JService
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.PARAGRAPH)
+    
+    def test_unordered_list_returns_unordered_list_blocktype(self):
+        text = """- Shopping List
+-Apples
+- Oranges
+-Tomatoes
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.UNORDERED_LIST)
+    
+    def test_unordered_list_missing_start_character_returns_paragraph_blocktype(self):
+        text = """- Shopping List
+- Apples
+Oranges
+-Tomatoes
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.PARAGRAPH)
+    
+    def test_ordered_list_returns_ordered_list_blocktype(self):
+        text = """1. Dust everything
+2. Clean surfaces
+3. Clean Cabinets
+4. Vacuum / sweep the floor.
+5. Swifter / Mop the floor.
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.ORDERED_LIST)
+    
+    def test_ordered_list_missing_dot_returns_paragraph_blocktype(self):
+        text = """1. Dust everything
+2. Clean surfaces
+3 Clean Cabinets
+4. Vacuum / sweep the floor.
+5. Swifter / Mop the floor.
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.PARAGRAPH)
+
+    def test_ordered_list_replaced_dot_returns_paragraph_blocktype(self):
+        text = """1. Dust everything
+2. Clean surfaces
+3. Clean Cabinets
+4D Vacuum / sweep the floor.
+5. Swifter / Mop the floor.
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.PARAGRAPH)
+
+    def test_ordered_list_missing_number_returns_paragraph_blocktype(self):
+        text = """1. Dust everything
+2. Clean surfaces
+3. Clean Cabinets
+Vacuum / sweep the floor.
+5. Swifter / Mop the floor.
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.PARAGRAPH)
+
+    def test_ordered_list_missing_space_returns_paragraph_blocktype(self):
+        text = """1. Dust everything
+2.Clean surfaces
+3. Clean Cabinets
+4. Vacuum / sweep the floor.
+5. Swifter / Mop the floor.
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.PARAGRAPH)
