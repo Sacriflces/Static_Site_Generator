@@ -112,7 +112,7 @@ double value = 20.0;
     def test_quote_block_returns_quote_blocktype(self):
         text = """> This is a random quote.
 > From yours truly,
-> Inqindi!
+>Inqindi!
 > by JService
 """
         rtnType = block_to_block_type(text)

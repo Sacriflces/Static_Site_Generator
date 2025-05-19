@@ -85,11 +85,11 @@ def markdown_to_html_node(markdown):
         child = None
         match block_type: #Where we create the HTML Node
             case BlockType.HEADING:
-                pass
+                child = create_HTML_heading_node(block)
             case BlockType.CODE:
-                pass
+                child = create_HTML_code_node(block)
             case BlockType.QUOTE:
-                pass
+                child = create_HTML_blockquote_node(block)
             case BlockType.UNORDERED_LIST:
                 pass
             case BlockType.ORDERED_LIST:
@@ -99,10 +99,29 @@ def markdown_to_html_node(markdown):
         child_Nodes.append(child)
     return ParentNode("div", child_Nodes)
 
+def create_HTML_heading_node(text):
+    match = re.match("(#{1,6}) (.*)", text)
+    tag = f"h{len(match.group(1))}"
+    children = text_to_HTML_children(match.group(2))
+    return ParentNode(tag, children)
+
+def create_HTML_code_node(text):
+    formatted_text = text.replace("```", "").lstrip()
+    child = LeafNode("code", formatted_text)
+    return ParentNode("pre", [child])
+
+def create_HTML_blockquote_node(text): #split the lines, remove the > and additional space, and join with a space before passing it into the text_to_HTML_children function.
+    pass
+
 def create_HTML_p_node(text):
     formatted_text = text.replace("\n", " ")
-    children = [text_node_to_html_node(text_node) for text_node in text_to_textnodes(formatted_text)]
+    children = text_to_HTML_children(formatted_text)
     return ParentNode("p", children)
+
+def text_to_HTML_children(text):
+    return [text_node_to_html_node(text_node) for text_node in text_to_textnodes(text)]
+
+
 
     
 

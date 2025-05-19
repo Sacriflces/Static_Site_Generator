@@ -211,10 +211,10 @@ This is another paragraph with _italic_ text and `code` here
 
     def test_codeblock(self):
         md = """
-    ```
-    This is text that _should_ remain
-    the **same** even with inline stuff
-    ```
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
     """
 
         node = markdown_to_html_node(md)
@@ -222,6 +222,61 @@ This is another paragraph with _italic_ text and `code` here
         self.assertEqual(
             html,
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
+    
+    def test_headings(self):
+        md = """
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><h5>Heading 5</h5><h6>Heading 6</h6></div>"
+        )
+    
+    def test_headings_with_inline_elements(self):
+        md = """
+# _Heading_ 1
+
+## **Heading** 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1><i>Heading</i> 1</h1><h2><b>Heading</b> 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><h5>Heading 5</h5><h6>Heading 6</h6></div>"
+        )
+    
+    def test_quote(self):
+        md = """> This is a random quote.
+> From yours truly,
+> Inqindi!
+> by JService
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div>This is a random quote. From yours truly, Inqindi! by Jservice</div>"
         )
         
 if __name__ == "__main__":
