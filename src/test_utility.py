@@ -276,8 +276,115 @@ the **same** even with inline stuff
         html = node.to_html()
         self.assertEqual(
             html,
-            "<div>This is a random quote. From yours truly, Inqindi! by Jservice</div>"
+            "<div><blockquote>This is a random quote. From yours truly, Inqindi! by JService</blockquote></div>"
         )
-        
+    
+    def test_quote_with_inline_elements(self):
+        md = """> This is a _random_ quote.
+> From **yours** truly,
+> Inqindi!
+> by JService
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>This is a <i>random</i> quote. From <b>yours</b> truly, Inqindi! by JService</blockquote></div>"
+        )
+    
+    def test_unordered_list(self):
+        md = """- Shopping List
+- Apples
+- Oranges
+- Tomatoes
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>Shopping List</li><li>Apples</li><li>Oranges</li><li>Tomatoes</li></ul></div>"
+        )
+    
+    def test_unordered_list_with_inline_elements(self):
+        md = """- _Shopping_ **Li**st
+- _Apples_
+- **Oranges**
+- Tomatoes
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li><i>Shopping</i> <b>Li</b>st</li><li><i>Apples</i></li><li><b>Oranges</b></li><li>Tomatoes</li></ul></div>"
+        )
+    
+    def test_ordered_list(self):
+        md ="""1. Dust everything
+2. Clean surfaces
+3. Clean Cabinets
+4. Vacuum / sweep the floor.
+5. Swifter / Mop the floor.
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>Dust everything</li><li>Clean surfaces</li><li>Clean Cabinets</li><li>Vacuum / sweep the floor.</li><li>Swifter / Mop the floor.</li></ol></div>"
+        )
+
+    def test_ordered_list_with_inline_elements(self):
+        md ="""1. _Dust_ everything
+2. Clean surfaces
+3. Clean **Cabinets**
+4. Vacuum / `sweep the floor`.
+5. Swifter / Mop the floor.
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li><i>Dust</i> everything</li><li>Clean surfaces</li><li>Clean <b>Cabinets</b></li><li>Vacuum / <code>sweep the floor</code>.</li><li>Swifter / Mop the floor.</li></ol></div>"
+        )
+    
+    def test_markdown_with_multiple_blocks(self):
+        md = """ # Software Engineer Job Posting Asks
+
+## Number of Postings Reviewed: **10**
+
+### Skills ranked by relevance
+
+1. Cloud Platform
+2. SQL Database
+3. Python
+4. C#
+5. Javascript
+6. Frontend Framework
+
+### Additional Skills in no particular order
+
+- Agile
+- MySQL
+- Git
+- CI/CD
+- C++
+
+I reviewed job postings on [LinkedIn](https://linkedin.com) Also.. here's an image of ![Obi Wan](https://i.imgur.com/fJRm4Vk.jpeg)
+
+The following is example of code in C++. It uses the `cout` object.
+
+```
+using namespace std;
+cout << "Hello World!" << endl;
+```
+
+> I fear not the man who has practiced 10,000 kicks once,
+> but I fear the man who has practiced one kick 10,000 times.
+> by _Bruce Lee_
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(html, "<div><h1>Software Engineer Job Posting Asks</h1><h2>Number of Postings Reviewed: <b>10</b></h2><h3>Skills ranked by relevance</h3><ol><li>Cloud Platform</li><li>SQL Database</li><li>Python</li><li>C#</li><li>Javascript</li><li>Frontend Framework</li></ol><h3>AdditionalSkills in no particular order</h3><ul><li>Agile</li><li>MySQL</li><li>Git</li><li>CI/CD</li><li>C++</li></ul><p></p></div>")
+
 if __name__ == "__main__":
     unittest.main()

@@ -91,13 +91,14 @@ def markdown_to_html_node(markdown):
             case BlockType.QUOTE:
                 child = create_HTML_blockquote_node(block)
             case BlockType.UNORDERED_LIST:
-                pass
+                child = create_HTML_unordered_list(block)
             case BlockType.ORDERED_LIST:
-                pass
+                child = create_HTML_ordered_list(block)
             case BlockType.PARAGRAPH:
                 child = create_HTML_p_node(block)
         child_Nodes.append(child)
     return ParentNode("div", child_Nodes)
+
 
 def create_HTML_heading_node(text):
     match = re.match("(#{1,6}) (.*)", text)
@@ -110,13 +111,31 @@ def create_HTML_code_node(text):
     child = LeafNode("code", formatted_text)
     return ParentNode("pre", [child])
 
-def create_HTML_blockquote_node(text): #split the lines, remove the > and additional space, and join with a space before passing it into the text_to_HTML_children function.
-    pass
+def create_HTML_blockquote_node(text):
+    formatted_lines = [line.replace(">","").strip() for line in text.splitlines()]
+    formatted_text = " ".join(formatted_lines)
+    children = text_to_HTML_children(formatted_text)
+    return ParentNode("blockquote", children)
+
+def create_HTML_unordered_list(text):
+    formatted_lines = [line.replace("-", "").strip() for line in text.splitlines()]
+    children = text_to_listitems(formatted_lines)
+    return ParentNode("ul", children)
+
+def create_HTML_ordered_list(text):
+    formatted_lines = [line[line.find(" "):].strip() for line in text.splitlines()]
+    children = text_to_listitems(formatted_lines)
+    return ParentNode("ol", children)
+
+def text_to_listitems(lines):
+    list_items = [ParentNode("li", text_to_HTML_children(line)) for line in lines]    
+    return list_items
 
 def create_HTML_p_node(text):
     formatted_text = text.replace("\n", " ")
     children = text_to_HTML_children(formatted_text)
     return ParentNode("p", children)
+
 
 def text_to_HTML_children(text):
     return [text_node_to_html_node(text_node) for text_node in text_to_textnodes(text)]

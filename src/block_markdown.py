@@ -21,7 +21,7 @@ def block_to_block_type(block):
             return BlockType.CODE
         case block if all_lines_match(block, "^>.*"):
             return BlockType.QUOTE
-        case block if all_lines_match(block, "^-.*"):
+        case block if all_lines_match(block, "^- .*"):
             return BlockType.UNORDERED_LIST
         case block if is_ordered_list(block):
             return BlockType.ORDERED_LIST

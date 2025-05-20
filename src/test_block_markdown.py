@@ -126,15 +126,24 @@ Inqindi!
 """
         rtnType = block_to_block_type(text)
         self.assertEqual(rtnType, BlockType.PARAGRAPH)
-    
-    def test_unordered_list_returns_unordered_list_blocktype(self):
+
+    def test_unordered_list_missing_space_returns_unordered_list_blocktype(self):
+        text = """- Shopping List
+- Apples
+- Oranges
+- Tomatoes
+"""
+        rtnType = block_to_block_type(text)
+        self.assertEqual(rtnType, BlockType.UNORDERED_LIST)
+
+    def test_unordered_list_missing_space_returns_paragraph_blocktype(self):
         text = """- Shopping List
 -Apples
 - Oranges
 -Tomatoes
 """
         rtnType = block_to_block_type(text)
-        self.assertEqual(rtnType, BlockType.UNORDERED_LIST)
+        self.assertEqual(rtnType, BlockType.PARAGRAPH)
     
     def test_unordered_list_missing_start_character_returns_paragraph_blocktype(self):
         text = """- Shopping List
