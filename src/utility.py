@@ -16,7 +16,7 @@ def text_node_to_html_node(text_node):
         case TextType.LINK:
             htmlNode = LeafNode("a", text_node.text, {"href": text_node.url})
         case TextType.IMAGE:
-            htmlNode = LeafNode("img", None, {"src": text_node.url, "alt": text_node.text})
+            htmlNode = LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
 
     return htmlNode
 
@@ -107,7 +107,7 @@ def create_HTML_heading_node(text):
     return ParentNode(tag, children)
 
 def create_HTML_code_node(text):
-    formatted_text = text.replace("```", "").lstrip()
+    formatted_text = text.replace("```", "").lstrip().replace("\n","<br>")
     child = LeafNode("code", formatted_text)
     return ParentNode("pre", [child])
 
