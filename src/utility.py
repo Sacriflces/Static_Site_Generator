@@ -140,6 +140,13 @@ def create_HTML_p_node(text):
 def text_to_HTML_children(text):
     return [text_node_to_html_node(text_node) for text_node in text_to_textnodes(text)]
 
+def extract_title(markdown):
+    match = re.search("^# (.*)", markdown, re.MULTILINE)
+
+    if match is None:
+        raise Exception("No h1 header in the markdown")
+    
+    return match.group(1).strip()
 
 
     

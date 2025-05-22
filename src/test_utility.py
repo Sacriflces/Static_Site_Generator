@@ -1,7 +1,7 @@
 import unittest
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
-from utility import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_html_node
+from utility import text_node_to_html_node, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_html_node, extract_title
 
 class TestUtility(unittest.TestCase):
     def test_text(self):
@@ -386,6 +386,40 @@ cout << "Hello World!" << endl;
         node = markdown_to_html_node(md)
         html = node.to_html()
         self.assertEqual(html, '<div><h1>Software Engineer Job Posting Asks</h1><h2>Number of Postings Reviewed: <b>10</b></h2><h3>Skills ranked by relevance</h3><ol><li>Cloud Platform</li><li>SQL Database</li><li>Python</li><li>C#</li><li>Javascript</li><li>Frontend Framework</li></ol><h3>Additional Skills in no particular order</h3><ul><li>Agile</li><li>MySQL</li><li>Git</li><li>CI/CD</li><li>C++</li></ul><p>I reviewed job postings on <a href="https://linkedin.com">LinkedIn</a>. Also.. here\'s an image of <img src="https://i.imgur.com/fJRm4Vk.jpeg" alt="Obi Wan"></img></p><p>The following is an example of code in C++. It uses the <code>cout</code> object.</p><pre><code>using namespace std;<br>cout << "Hello World!" << endl;<br></code></pre><blockquote>I fear not the man who has practiced 10,000 kicks once, but I fear the man who has practiced one kick 10,000 times. by <i>Bruce Lee</i></blockquote></div>')
+
+    def test_extract_title_returns_h1_text(self):
+        md = """
+# _Heading_ 1
+
+## **Heading** 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "_Heading_ 1")
+    
+    def test_extract_title_raises_exception_with_missing_h1(self):
+        md = """
+## _Heading_ 1
+
+## **Heading** 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+"""
+        with self.assertRaises(Exception):
+            extract_title(md)
 
 if __name__ == "__main__":
     unittest.main()
