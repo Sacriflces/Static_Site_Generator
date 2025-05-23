@@ -4,6 +4,8 @@ import os
 import shutil
 STATIC_PATH = "./static"
 PUBLIC_PATH = "./public"
+TEMPLATE_PATH = "./template.html"
+CONTENT_PATH = "./content"
 
 def copy_directory_to_public(src_dir, dest_dir):
     if not os.path.exists(src_dir):
@@ -39,8 +41,27 @@ def generate_page(from_path, template_path, dest_path):
 
     with open(dest_path, "w") as f:
         f.write(html)
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    md_files = get_markdown_files(dir_path_content)
+    for src_file in md_files:
+        dest_folder = os.path.dirname(src_file).replace(dir_path_content, dest_dir_path)
+        if not os.path.exists(dest_folder):
+            os.makedirs(dest_folder)
+        dest_file = os.path.join(dest_folder, os.path.basename(os.path.splitext(src_file)[0]) + ".html")
+        generate_page(src_file, template_path, dest_file)
     
-    
+def get_markdown_files(dir_path):
+    md_files = []
+    directory_contents = os.listdir(dir_path)
+    for item in directory_contents:
+        fullPath = os.path.join(dir_path, item)
+        if os.path.isdir(fullPath):
+            md_files += get_markdown_files(fullPath)
+        elif os.path.splitext(fullPath)[1].lower() == ".md":
+            md_files.append(fullPath)
+    return md_files
+            
     
     
     
@@ -53,7 +74,8 @@ def main():
         shutil.rmtree(PUBLIC_PATH)
 
     copy_directory_to_public(STATIC_PATH, PUBLIC_PATH) # Copy static data into the public directory
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
+    #generate_page("./content/index.md", "./template.html", "./public/index.html")
+    generate_pages_recursive(CONTENT_PATH, TEMPLATE_PATH, PUBLIC_PATH)
 
 if __name__ == "__main__":
     main()
