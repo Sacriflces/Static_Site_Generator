@@ -2,8 +2,9 @@ from textnode import TextType, TextNode
 from utility import *
 import os
 import shutil
+import sys
 STATIC_PATH = "./static"
-PUBLIC_PATH = "./public"
+PUBLISH_PATH = "./docs"
 TEMPLATE_PATH = "./template.html"
 CONTENT_PATH = "./content"
 
@@ -24,7 +25,7 @@ def copy_directory_to_public(src_dir, dest_dir):
         else:
             copy_directory_to_public(src_path, dest_path)
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     md = ""
     template = ""
@@ -37,19 +38,19 @@ def generate_page(from_path, template_path, dest_path):
     
     title = extract_title(md)
     content = markdown_to_html_node(md).to_html()
-    html = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+    html = template.replace("{{ Title }}", title).replace("{{ Content }}", content).replace('href="/', f'href="{basepath}').replace('src="/', f'src="{basepath}')
 
     with open(dest_path, "w") as f:
         f.write(html)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     md_files = get_markdown_files(dir_path_content)
     for src_file in md_files:
         dest_folder = os.path.dirname(src_file).replace(dir_path_content, dest_dir_path)
         if not os.path.exists(dest_folder):
             os.makedirs(dest_folder)
         dest_file = os.path.join(dest_folder, os.path.basename(os.path.splitext(src_file)[0]) + ".html")
-        generate_page(src_file, template_path, dest_file)
+        generate_page(src_file, template_path, dest_file, basepath)
     
 def get_markdown_files(dir_path):
     md_files = []
@@ -67,15 +68,17 @@ def get_markdown_files(dir_path):
     
 
 def main():
-    # text_node = TextNode("This is some anchor text", TextType.LINK, "https//www.boot.dev")
-    # print(TextNode("Hello World", TextType.NORMAL))
-    # print(text_node)
-    if os.path.exists(PUBLIC_PATH): # Delete the entire public directory
-        shutil.rmtree(PUBLIC_PATH)
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+    else:
+        basepath = "/"
 
-    copy_directory_to_public(STATIC_PATH, PUBLIC_PATH) # Copy static data into the public directory
+    if os.path.exists(PUBLISH_PATH): # Delete the entire public directory
+        shutil.rmtree(PUBLISH_PATH)
+
+    copy_directory_to_public(STATIC_PATH, PUBLISH_PATH) # Copy static data into the public directory
     #generate_page("./content/index.md", "./template.html", "./public/index.html")
-    generate_pages_recursive(CONTENT_PATH, TEMPLATE_PATH, PUBLIC_PATH)
+    generate_pages_recursive(CONTENT_PATH, TEMPLATE_PATH, PUBLISH_PATH, basepath)
 
 if __name__ == "__main__":
     main()
